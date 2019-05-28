@@ -1,6 +1,6 @@
 // vertex shader
 
-#version 150
+#version 330
 
 uniform mat4 modelViewProjectionMatrix;
 uniform float time;
@@ -10,7 +10,7 @@ uniform sampler2DRect particleData;
 in vec4 position;
 
 void main(){
-  vec4 particle = texelFetch(particleData, ivec2(position.x, 0));
+  vec4 particle = texelFetch(particleData, ivec2(position.x, position.y));
   
   vec4 transformed = vec4(
     particle.x * resolution.x,
