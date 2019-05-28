@@ -4,10 +4,13 @@
 void ofApp::setup(){
   renderShader.load("render.vert", "render.frag");
   updateShader.load("update.vert", "update.frag");
+  trailShader.load("trail.vert", "trail.frag");
 
   ofBackground(0, 0, 0);
   
   buffer.allocate(NUM_PARTICLES, NUM_PARTICLES);
+  trailMap.allocate(ofGetWidth(), ofGetHeight());
+  particleLayer.allocate(ofGetWidth(), ofGetHeight());
   
   float* particlePosns = new float[NUM_PARTICLES * NUM_PARTICLES * 4];
   for (unsigned y = 0; y < NUM_PARTICLES; ++y) {
@@ -70,7 +73,7 @@ void ofApp::draw() {
   
   buffer.dst->begin();
 
-//  glPushAttrib(GL_ENABLE_BIT);
+  glPushAttrib(GL_ENABLE_BIT);
   // we set up no camera model and ignore the modelview and projection matrices
   // in the vertex shader, we make a viewport large enough to ensure the shader
   // is executed for each pixel
@@ -94,29 +97,51 @@ void ofApp::draw() {
   ofDrawRectangle(0, 0, buffer.src->getWidth(), buffer.src->getHeight());
   updateShader.end();
   
-//  glPopAttrib();
+  glPopAttrib();
 
   buffer.dst->end();
+
+  
+  // TODO: not able to draw to the particle layer
+  particleLayer.begin();
+  particleLayer.clearColorBuffer(ofFloatColor(0, 0, 0));
 
   renderShader.begin();
   renderShader.setUniform1f("time", ofGetElapsedTimef());
   renderShader.setUniform2f("resolution", ofGetWidth(), ofGetHeight());
   renderShader.setUniformTexture("particleData", buffer.dst->getTexture(0), 0);
-  
   mesh.disableColors();
   ofSetColor(255, 255, 255, 50);
-  glPointSize(2);
+  glPointSize(1);
   mesh.draw();
   renderShader.end();
+  
+  particleLayer.end();
+  
+  buffer.swap();
+
+  
+  trailMap.dst->begin();
+  trailShader.begin();
+  trailShader.setUniformTexture("particleLayer", particleLayer.getTexture(), 0);
+  trailShader.setUniformTexture("lastFrame", trailMap.src->getTexture(), 1);
+  ofDrawRectangle(0, 0, trailMap.dst->getWidth(), trailMap.dst->getHeight());
+  trailShader.end();
+  trailMap.dst->end();
+  
+  trailMap.swap();
   
   if (showTextures) {
     buffer.dst->getTexture(0).draw(0, 0);
     buffer.dst->getTexture(1).draw(NUM_PARTICLES, 0);
   }
 
-  buffer.swap();
+  
+  
+//  particleLayer.draw(0, 0);
+  
+  trailMap.dst->draw(0, 0);
 
-//  particleData.draw(0, 0);
   gui.draw();
   
   ofDrawBitmapString(ofGetFrameRate(), 20, ofGetHeight());

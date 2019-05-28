@@ -4,7 +4,7 @@
 #include "swapBuffer.h"
 #include "ofxGui.h"
 
-class ofApp : public ofBaseApp{
+class ofApp : public ofBaseApp {
 
 public:
   void setup();
@@ -33,11 +33,14 @@ public:
   
   ofShader updateShader;
   ofShader renderShader;
+  ofShader trailShader;
   ofVboMesh mesh;
   bool showTextures = true;
   
   swapBuffer buffer;
+  swapBuffer trailMap;
+  
+  ofFbo particleLayer;
 
   ofxPanel gui;
-
 };
