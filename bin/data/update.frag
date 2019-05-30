@@ -4,6 +4,7 @@
 
 uniform sampler2DRect positionData;
 uniform sampler2DRect velocityData;
+uniform sampler2DRect trailMap;
 uniform int numParticles;
 
 uniform float repelThreshold;
@@ -11,71 +12,75 @@ uniform float repelStrength;
 uniform float attractionThreshold;
 uniform float attractionStrength;
 uniform float friction;
+uniform float speed;
+uniform float sensorAngle;
+uniform float sensorDistance;
+uniform float rotateIncrement;
+uniform float time;
+uniform vec2 size;
 
 layout(location = 0) out vec4 positionOutput;
 layout(location = 1) out vec4 velocityOutput;
 
 in vec2 vertTexCoord;
 
+const float PI = 3.1415926535897932384626433832795;
+
+float rand(vec2 co){
+    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+}
+
 void main()
 {
-  // vec4 position = texture(positionData, vertTexCoord);
   ivec2 ipos = ivec2(gl_FragCoord.xy);
 
-  vec4 position = texelFetch(positionData, ipos);
+  vec4 rawPosition = texelFetch(positionData, ipos);
   vec4 rawVelocity = texelFetch(velocityData, ipos);
 
-  // vec4 particle = vec4(0.5, 0.5, 0, 0.5);
-  // vec4 particle = texelFetch(backbuffer, ivec2(gl_FragCoord.xy));
+  vec2 position = rawPosition.xy * size;
+  float heading = rawVelocity.x;
 
-  // float vx = (particle.z - 0.5) / 100.;
-  // float vy = (particle.w - 0.5) / 100.;
-  // particle.x += vx;
-  // particle.y += vx;
+  vec2 velocity = vec2(cos(heading * PI * 2) * speed, sin(heading * PI * 2) * speed);
 
-  vec2 velocity = vec2(rawVelocity.x - 0.5, rawVelocity.y - 0.5);
+  // move forward in current direction
+  position.x = mod(position.x + velocity.x, size.x);
+  position.y = mod(position.y + velocity.y, size.y);
 
-  if (position.x <= 0) {
-    velocity.x *= -1;
-  }
+  // read trail map with three sensors
+  ivec2 flPos = ivec2(
+    position.x + cos(heading * PI * 2 - sensorAngle) * sensorDistance,
+    position.y + sin(heading * PI * 2 - sensorAngle) * sensorDistance);
 
-  if (position.x >= 1) {
-    velocity.x *= -1;
-  }
+  ivec2 frPos = ivec2(
+    position.x + cos(heading * PI * 2 + sensorAngle) * sensorDistance,
+    position.y + sin(heading * PI * 2 + sensorAngle) * sensorDistance);
 
-  if (position.y <= 0) {
-    velocity.y *= -1;
-  }
+  ivec2 fPos = ivec2(
+    position.x + cos(heading * PI * 2) * sensorDistance,
+    position.y + sin(heading * PI * 2) * sensorDistance);
 
-  if (position.y >= 1) {
-    velocity.y *= -1;
-  }
+  vec4 fl = texelFetch(trailMap, flPos);
+  vec4 fr = texelFetch(trailMap, frPos);
+  vec4 f = texelFetch(trailMap, fPos);
 
-  for (int x = 0; x < numParticles; x++) {
-    for (int y = 0; y < numParticles; y++) {
-      vec4 position2 = texelFetch(positionData, ivec2(x, y));
-      if (ipos.x != x && ipos.y != y) {
-        vec4 delta = position - position2;
-        vec2 r = normalize(delta.xy);
-        float dist = length(delta.xy);
-
-        if (dist < repelThreshold) {
-          float force = clamp(repelStrength / dist, 0, 0.1);
-          velocity += repelStrength * r / dist;
-        }
-
-        if (dist < attractionThreshold) {
-          float force = clamp(attractionStrength / dist, 0, 0.1);
-          velocity -= attractionStrength * r / dist;
-        }
-      }
+  // turn based on sensors
+  if (f.r > fl.r && f.r > fr.r) {
+    // stay on course
+  } else if (f.r < fl.r && f.r < fr.r) {
+    // rotate randomly
+    if (rand(vec2(position.x + time, position.y)) < 0.5) {
+      heading += rotateIncrement;
+    } else {
+      heading -= rotateIncrement;
     }
+  } else if (fr.r < fl.r) {
+    // turn right
+    heading += rotateIncrement;
+  } else if (fl.r < fr.r) {
+    // turn left
+    heading -= rotateIncrement;
   }
-
-  velocity *= friction;
-  position.x += velocity.x;
-  position.y += velocity.y;
-
-  positionOutput = vec4(position.x, position.y, 0, 1);
-  velocityOutput = vec4(velocity.x + 0.5, velocity.y + 0.5, 0, 1);
+  
+  positionOutput = vec4(position.x / size.x, position.y / size.y, 0, 1);
+  velocityOutput = vec4(heading, 0, 0, 1);
 }

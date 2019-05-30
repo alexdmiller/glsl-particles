@@ -23,13 +23,14 @@ public:
   void dragEvent(ofDragInfo dragInfo);
   void gotMessage(ofMessage msg);
 
-  int NUM_PARTICLES = 100;
+  int NUM_PARTICLES = 500;
   
-  ofParameter<float> repelThreshold = 0.001;
-  ofParameter<float> repelStrength = 0.001;
-  ofParameter<float> attractionThreshold = 0.002;
-  ofParameter<float> attractionStrength = 0.0001;
-  ofParameter<float> friction = 0.8;
+  ofParameter<float> center = 0.01;
+  ofParameter<float> edge = 0.01;
+  ofParameter<float> speed = 0.01;
+  ofParameter<float> sensorDistance = 0.01;
+  ofParameter<float> sensorAngle = 0.01;
+  ofParameter<float> rotateIncrement = 0.001;
   
   ofShader updateShader;
   ofShader renderShader;

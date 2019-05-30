@@ -9,6 +9,8 @@ uniform sampler2DRect particleData;
 
 in vec4 position;
 
+out vec4 vertColor;
+
 void main(){
   vec4 particle = texelFetch(particleData, ivec2(position.x, position.y));
   
@@ -17,5 +19,6 @@ void main(){
     particle.y * resolution.y,
     0, 1);
 
+  vertColor = vec4(1, 1, 1, 1);
   gl_Position = modelViewProjectionMatrix * transformed;
 }
