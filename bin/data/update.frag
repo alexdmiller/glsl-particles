@@ -80,7 +80,10 @@ void main()
     // turn left
     heading -= rotateIncrement;
   }
-  
+
+//  position += 1 * vec2(rand(position.xy / 1000) - 0.5, rand(position.xy / 1000 + vec2(100, 100)) - 0.5);
+ position.x += sin(position.x / 20 + time * 4) * 2;
+
   positionOutput = vec4(position.x / size.x, position.y / size.y, 0, 1);
   velocityOutput = vec4(heading, 0, 0, 1);
 }

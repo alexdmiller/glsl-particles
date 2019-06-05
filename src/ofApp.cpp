@@ -54,7 +54,7 @@ void ofApp::setup(){
   
   gui.setup();
   gui.add(center.set("center kernel weight", 0.7, 0, 1));
-  gui.add(edge.set("edge kernel weight", 0.01, 0, 0.1));
+  gui.add(edge.set("edge kernel weight", 0.01, 0, 1));
   gui.add(speed.set("speed", 2, 0, 10));
   gui.add(sensorAngle.set("sensor angle", 1, 0, PI * 2));
   gui.add(sensorDistance.set("sensor distance", 20, 0, 20));
@@ -126,8 +126,6 @@ void ofApp::draw() {
     
     trailMap.swap();
   }
-  
-
 
   trailMap.dst->draw(0, 0);
 
