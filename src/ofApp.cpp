@@ -5,6 +5,7 @@ void ofApp::setup(){
   renderShader.load("render.vert", "render.frag");
   updateShader.load("update.vert", "update.frag");
   trailShader.load("trail.vert", "trail.frag");
+  finalRenderShader.load("finalrender.vert", "finalrender.frag");
 
   ofBackground(0, 0, 0);
   
@@ -18,7 +19,7 @@ void ofApp::setup(){
       unsigned idx = y * NUM_PARTICLES + x;
       particlePosns[idx * 4] =     ofRandom(1);
       particlePosns[idx * 4 + 1] = ofRandom(1);
-      particlePosns[idx * 4 + 2] = 0.f;
+      particlePosns[idx * 4 + 2] = round(ofRandom(1));
       particlePosns[idx * 4 + 3] = 0.f;
     }
   }
@@ -54,11 +55,12 @@ void ofApp::setup(){
   
   gui.setup();
   gui.add(center.set("center kernel weight", 0.7, 0, 1));
-  gui.add(edge.set("edge kernel weight", 0.01, 0, 1));
+  gui.add(edge.set("edge kernel weight", 0.01, 0, 0.1));
   gui.add(speed.set("speed", 2, 0, 10));
   gui.add(sensorAngle.set("sensor angle", 1, 0, PI * 2));
-  gui.add(sensorDistance.set("sensor distance", 20, 0, 20));
+  gui.add(sensorDistance.set("sensor distance", 20, 0, 100));
   gui.add(rotateIncrement.set("rotate increment", 0.8, 0, PI));
+  gui.add(waves.set("waves", 0., -4, 4));
 }
 
 //--------------------------------------------------------------
@@ -89,6 +91,7 @@ void ofApp::draw() {
     updateShader.setUniform1f("rotateIncrement", rotateIncrement);
     updateShader.setUniform1f("time", ofGetElapsedTimef());
     updateShader.setUniform2f("size", ofGetWidth(), ofGetHeight());
+    updateShader.setUniform1f("waves", waves);
     
     ofDrawRectangle(0, 0, buffer.src->getWidth(), buffer.src->getHeight());
     updateShader.end();
@@ -127,7 +130,11 @@ void ofApp::draw() {
     trailMap.swap();
   }
 
-  trailMap.dst->draw(0, 0);
+  
+  finalRenderShader.begin();
+  finalRenderShader.setUniformTexture("image", trailMap.dst->getTexture(), 0);
+  ofDrawRectangle(0, 0, trailMap.dst->getWidth(), trailMap.dst->getHeight());
+  finalRenderShader.end();
 
   if (showTextures) {
     buffer.dst->getTexture(0).draw(0, 0);

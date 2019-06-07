@@ -33,5 +33,5 @@ void main()
 
 //  sum -= 0.1;
 
-  outputColor = clamp(particle + vec4(sum.r, 0, 0, 0), 0, 1);
+  outputColor = clamp(particle + vec4(sum.r, sum.g, sum.b, 0), 0, 1);
 }

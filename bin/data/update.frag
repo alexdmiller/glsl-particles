@@ -7,17 +7,13 @@ uniform sampler2DRect velocityData;
 uniform sampler2DRect trailMap;
 uniform int numParticles;
 
-uniform float repelThreshold;
-uniform float repelStrength;
-uniform float attractionThreshold;
-uniform float attractionStrength;
-uniform float friction;
 uniform float speed;
 uniform float sensorAngle;
 uniform float sensorDistance;
 uniform float rotateIncrement;
 uniform float time;
 uniform vec2 size;
+uniform float waves;
 
 layout(location = 0) out vec4 positionOutput;
 layout(location = 1) out vec4 velocityOutput;
@@ -27,7 +23,29 @@ in vec2 vertTexCoord;
 const float PI = 3.1415926535897932384626433832795;
 
 float rand(vec2 co){
-    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+  return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+}
+
+float headingAdjustment(vec2 position, float multiplier, float left, float middle, float right) {
+  float heading = 0;
+  // turn based on sensors
+  if (middle > left && middle > right) {
+    // stay on course
+  } else if (middle < left && middle < right) {
+    // rotate randomly
+    if (rand(vec2(position.x + time, position.y)) < 0.5) {
+      heading += multiplier * rotateIncrement;
+    } else {
+      heading -= multiplier * rotateIncrement;
+    }
+  } else if (right < left) {
+    // turn right
+    heading += multiplier * rotateIncrement;
+  } else if (left < right) {
+    // turn left
+    heading -= multiplier * rotateIncrement;
+  }
+  return heading;
 }
 
 void main()
@@ -39,6 +57,7 @@ void main()
 
   vec2 position = rawPosition.xy * size;
   float heading = rawVelocity.x;
+  int team = int(rawPosition.z);
 
   vec2 velocity = vec2(cos(heading * PI * 2) * speed, sin(heading * PI * 2) * speed);
 
@@ -63,27 +82,16 @@ void main()
   vec4 fr = texelFetch(trailMap, frPos);
   vec4 f = texelFetch(trailMap, fPos);
 
-  // turn based on sensors
-  if (f.r > fl.r && f.r > fr.r) {
-    // stay on course
-  } else if (f.r < fl.r && f.r < fr.r) {
-    // rotate randomly
-    if (rand(vec2(position.x + time, position.y)) < 0.5) {
-      heading += rotateIncrement;
-    } else {
-      heading -= rotateIncrement;
-    }
-  } else if (fr.r < fl.r) {
-    // turn right
-    heading += rotateIncrement;
-  } else if (fl.r < fr.r) {
-    // turn left
-    heading -= rotateIncrement;
-  }
+  float multiplier1 = mix(-1, 1, team);
+  float multiplier2 = mix(1, -1, team);
 
-//  position += 1 * vec2(rand(position.xy / 1000) - 0.5, rand(position.xy / 1000 + vec2(100, 100)) - 0.5);
- position.x += sin(position.x / 20 + time * 4) * 2;
+  heading += headingAdjustment(position, multiplier1, fl.r, f.r, fr.r);
+  heading += headingAdjustment(position, multiplier2, fl.g, f.g, fr.g);
 
-  positionOutput = vec4(position.x / size.x, position.y / size.y, 0, 1);
+  //  position += 1 * vec2(rand(position.xy / 1000) - 0.5, rand(position.xy / 1000 + vec2(100, 100)) - 0.5);
+  position.x += sin(position.x / 20 + time * 4) * waves;
+
+  positionOutput = vec4(position.x / size.x, position.y / size.y, rawPosition.z, 1);
   velocityOutput = vec4(heading, 0, 0, 1);
 }
+

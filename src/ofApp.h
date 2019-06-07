@@ -31,10 +31,12 @@ public:
   ofParameter<float> sensorDistance = 0.01;
   ofParameter<float> sensorAngle = 0.01;
   ofParameter<float> rotateIncrement = 0.001;
+  ofParameter<float> waves = 0;
   
   ofShader updateShader;
   ofShader renderShader;
   ofShader trailShader;
+  ofShader finalRenderShader;
   ofVboMesh mesh;
   bool showTextures = true;
   

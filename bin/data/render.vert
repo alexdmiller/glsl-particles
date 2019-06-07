@@ -19,6 +19,11 @@ void main(){
     particle.y * resolution.y,
     0, 1);
 
-  vertColor = vec4(1, 1, 1, 1);
+  if (particle.z == 0) {
+    vertColor = vec4(1, 0, 0, 1);
+  } else {
+    vertColor = vec4(0, 1, 0, 1);
+  }
+
   gl_Position = modelViewProjectionMatrix * transformed;
 }
