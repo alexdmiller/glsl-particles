@@ -5,14 +5,14 @@
 out vec4 outputColor;
 uniform sampler2DRect particleLayer;
 uniform sampler2DRect lastFrame;
+uniform sampler2DRect drawLayer;
 
 uniform float center;
 uniform float edge;
-
+uniform vec2 size;
 
 void main()
 {
-
   float kernel[9] = float[9](
     edge, edge, edge,
     edge, center, edge,
@@ -22,6 +22,7 @@ void main()
   ivec2 ipos = ivec2(gl_FragCoord.xy);
 
   vec4 particle = texelFetch(particleLayer, ipos);
+  vec4 drawLayer = texelFetch(drawLayer, ivec2(ipos.x, size.y - ipos.y));
 
   vec4 sum = vec4(0, 0, 0, 0);
   for (int x = -1; x <= 1; x++) {
@@ -31,7 +32,5 @@ void main()
     }
   }
 
-//  sum -= 0.1;
-
-  outputColor = clamp(particle + vec4(sum.r, sum.g, sum.b, 0), 0, 1);
+  outputColor = clamp(particle + vec4(sum.r, sum.g, sum.b, 0), 0, 1) + vec4(drawLayer.r, drawLayer.g, 0, 0);
 }

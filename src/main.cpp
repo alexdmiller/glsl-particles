@@ -9,6 +9,8 @@ int main( ){
   settings.setSize(1024, 1024);
 //  settings.set
   ofCreateWindow(settings);
+  
+  ofSetFullscreen(true);
   // this kicks off the running of my app
   ofRunApp(new ofApp());
 

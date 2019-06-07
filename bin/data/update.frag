@@ -5,6 +5,7 @@
 uniform sampler2DRect positionData;
 uniform sampler2DRect velocityData;
 uniform sampler2DRect trailMap;
+uniform sampler2DRect parameterMap;
 uniform int numParticles;
 
 uniform float speed;
@@ -50,6 +51,7 @@ float headingAdjustment(vec2 position, float multiplier, float left, float middl
 
 void main()
 {
+  
   ivec2 ipos = ivec2(gl_FragCoord.xy);
 
   vec4 rawPosition = texelFetch(positionData, ipos);
@@ -58,6 +60,13 @@ void main()
   vec2 position = rawPosition.xy * size;
   float heading = rawVelocity.x;
   int team = int(rawPosition.z);
+
+  vec4 params = texelFetch(parameterMap, ivec2(position));
+
+  float distFromCenter = round(length(position - size.xy / 2) / 50) * 10;
+  float sensorDistance = distFromCenter;
+  // float rotateIncrement = params.g * 0.1;
+  // float speed = params.b * 20;
 
   vec2 velocity = vec2(cos(heading * PI * 2) * speed, sin(heading * PI * 2) * speed);
 

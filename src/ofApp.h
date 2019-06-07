@@ -38,12 +38,18 @@ public:
   ofShader trailShader;
   ofShader finalRenderShader;
   ofVboMesh mesh;
-  bool showTextures = true;
+  bool showTextures = false;
   
   swapBuffer buffer;
   swapBuffer trailMap;
   
   ofFbo particleLayer;
-
+  ofFbo drawLayer;
+  ofFbo parameterLayer;
+  
   ofxPanel gui;
+  
+  ofTrueTypeFont font;
+  
+  string currentString;
 };

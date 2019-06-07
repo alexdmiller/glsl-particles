@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<group>
+	<center_kernel_weight>0.75</center_kernel_weight>
+	<edge_kernel_weight>0.036</edge_kernel_weight>
+	<speed>0.95</speed>
+	<sensor_angle>0.816814</sensor_angle>
+	<sensor_distance>11.5</sensor_distance>
+	<rotate_increment>0.017</rotate_increment>
+	<waves>0</waves>
+</group>
