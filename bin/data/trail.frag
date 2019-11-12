@@ -22,7 +22,7 @@ void main()
   ivec2 ipos = ivec2(gl_FragCoord.xy);
 
   vec4 particle = texelFetch(particleLayer, ipos);
-  vec4 drawLayer = texelFetch(drawLayer, ivec2(ipos.x, size.y - ipos.y));
+  vec4 drawLayer = texelFetch(drawLayer, ivec2(ipos.x, ipos.y));
 
   vec4 sum = vec4(0, 0, 0, 0);
   for (int x = -1; x <= 1; x++) {

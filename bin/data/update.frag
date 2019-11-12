@@ -64,7 +64,7 @@ void main()
   vec4 params = texelFetch(parameterMap, ivec2(position));
 
   float distFromCenter = round(length(position - size.xy / 2) / 50) * 10;
-  float sensorDistance = distFromCenter;
+//  float sensorDistance = distFromCenter;
   // float rotateIncrement = params.g * 0.1;
   // float speed = params.b * 20;
 
